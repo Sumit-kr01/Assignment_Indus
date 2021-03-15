@@ -2,10 +2,11 @@
   "name": "indus_assignment",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "start" : "nodemon app.js"
   },
   "jest": {
     "testEnvironment": "node"

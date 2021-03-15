@@ -13,5 +13,3 @@ mongoose.connect(dbUrl, { useNewUrlParser: true, useUnifiedTopology: true },
       console.log('Connected to database');
     }
   });
-
-module.exports.dbConnection;
