@@ -1,11 +1,4 @@
-/* eslint-disable max-len */
-const redis = require('redis');
-
 const bookService = require('../service/book');
-
-const errorHandler = require('../utils/errorHandler');
-
-const redisClient = redis.createClient(6379);
 
 /**
  * Controller to add book into DB
@@ -60,31 +53,11 @@ async function countAll(req, res, next) {
  */
 async function findByAuthor(req, res, next) {
   try {
-    redisClient.smembers(req.query.author, async (err, data) => {
-      if (err) {
-        throw new errorHandler.internalServer('Some error occured');
-      } else if (data.length !== 0) {
-        console.log('123');
-        for (let i = 0; i < data.length; i++) {
-          res.send(JSON.parse(data[i]));
-        }
-      } else {
-        const result = await bookService.findByAuthor(req.query);
-        redisClient.zincrby('author', 1, req.query.author);
-        redisClient.zrevrange('author', 0, 9, (error, dataa) => {
-          console.log(dataa);
-          for (let i = 0; i < 10; i++) {
-            if (dataa[i] === req.query.author) {
-              redisClient.sadd(req.query.author, JSON.stringify(result.data));
-            } else {
-              continue;
-            }
-          }
-        });
+    const result = await bookService.findByAuthor(req.query);
 
-        res.status(200).json(result);
-      }
-    });
+    res.status(200).json(result);
+    //   }
+    // });
   } catch (err) {
     next(err);
   }
@@ -92,19 +65,8 @@ async function findByAuthor(req, res, next) {
 
 async function trendingAuthor(req, res, next) {
   try {
-    redisClient.smembers('Book', (err, data) => {
-      if (err) {
-        console.log(err);
-        throw new errorHandler.internalServer('Some error occured');
-      } else {
-        // const query = { author: data[0] };
-        // const  docs = book
-        for (let i = 0; i < data.length; i++) {
-          console.log(JSON.parse(data[i]));
-        }
-        res.send(data);
-      }
-    });
+    const result = await bookService.trendingAuthors();
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
@@ -140,7 +102,6 @@ async function update(req, res, next) {
   }
 }
 
-//---------------------------------------------------------------------------------------------------------------------
 /**
  * Query to insert book into DB
  * @param  {object} req Request
@@ -159,5 +120,3 @@ async function discard(req, res, next) {
 module.exports = {
   addBook, byGenre, countAll, findByAuthor, findByPattern, update, discard, trendingAuthor,
 };
-
-//--------------------------------------------------------------------------------------------------------------------

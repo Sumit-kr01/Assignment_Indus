@@ -1,7 +1,10 @@
+/* eslint-disable no-unused-vars */
 const dotenv = require('dotenv');
 const app = require('./index');
-// eslint-disable-next-line no-unused-vars
+
 const dbConnection = require('./utils/dbConnection');
+
+const redisConnection = require('./utils/redisConnection');
 
 dotenv.config();
 const PORT = process.env.PORT || 4000;

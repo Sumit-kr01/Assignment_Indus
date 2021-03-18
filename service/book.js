@@ -1,3 +1,7 @@
+/* eslint-disable no-continue */
+/* eslint-disable no-plusplus */
+/* eslint-disable no-shadow */
+/* eslint-disable brace-style */
 /* eslint-disable eqeqeq */
 /* eslint-disable new-cap */
 const mongoose = require('mongoose');
@@ -6,11 +10,11 @@ mongoose.set('useFindAndModify', false);
 
 const Book = require('../models/schema/book');
 
+const redisQuery = require('../helperFunctions/redisQuery');
+
 const bookQuery = require('../models/query/book');
 const errorHandler = require('../utils/errorHandler');
 const resp = require('../utils/responseHandler');
-// eslint-disable-next-line max-len
-//-------------------------------------------------------------------------------------------------------------------------
 
 /**
  * Query to insert book into DB
@@ -31,7 +35,6 @@ async function bookAdd(data) {
   return response;
 }
 
-//--------------------------------------------------------------------------------------------------
 /**
  * Query to find book by given genre
  * @param  {object} req-Request
@@ -49,7 +52,6 @@ async function findByGenre(genre, offset) {
   }
   return result;
 }
-//--------------------------------------------------------------------------------------------------
 /**
  * Query to count total number of books in store
  * @param  {object} req-Request
@@ -61,30 +63,6 @@ async function countAllBooks() {
   return new resp(`Total number of books in store is ${docs[0].total}`, docs[0].total);
 }
 
-//--------------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------------
-
-// module.exports.findUsingId = async (bookId)=> {
-
-//     let response;
-//    await  Book.findById(bookId , (err, docs) =>{
-//          if(err){
-//              response = err;
-//          }
-//          else{
-//              response = docs;
-//              console.log(docs);
-//          }
-//     })
-//     return response;
-// }
-
-// async function countIssues(bookId) {
-//   const count = await Issue.find({ bookId }).countDocuments();
-//   return count;
-// }
-//--------------------------------------------------------------------------------------------------
 /**
  * Query to find a book by author name
  * @param  {object} req-Request
@@ -93,20 +71,54 @@ async function countAllBooks() {
  */
 async function findByAuthor(query) {
   let result;
+  let parsedCacheData;
   const { author } = query;
   const { offset } = query; console.log(offset); console.log(author);
 
-  const docs = await bookQuery.findByAuthor({ 'author.fName': author.split(' ')[0], 'author.lName': author.split(' ')[1] }, offset);
-  if (docs.length == 0) {
-    throw new errorHandler.notFound('No books with given author name');
-  } else {
-    result = new resp('Books found for given Author Name:', docs);
+  // First query in cache
+  const cacheData = await redisQuery.findInSet(author);
+
+  // If found in cache return data from here
+  if (cacheData.length != 0) {
+    parsedCacheData = JSON.parse(cacheData);
+    await redisQuery.addToSortedSet(author);
+    result = new resp('Books found for given Author Name:', parsedCacheData);
   }
-  // eslint-disable-next-line no-shadow
+  // Else make a db query
+  else if (cacheData.length == 0) {
+    const docs = await bookQuery.findByAuthor({ 'author.fName': author.split(' ')[0], 'author.lName': author.split(' ')[1] }, offset);
+    if (docs.length == 0) {
+      throw new errorHandler.notFound('No books with given author name');
+    } else {
+      // Increase author score by 1
+      await redisQuery.addToSortedSet(author);
+      result = new resp('Books found for given Author Name:', docs);
+    }
+    // Add author's Book to cache if author is in top 10
+    const trendingAuthors = await redisQuery.scanTop10inSortedSet();
+    for (let i = 0; i < 10; i++) {
+      if (trendingAuthors[i] == author) {
+        redisQuery.addToSet(author, docs);
+      } else {
+        continue;
+      }
+    }
+  }
   return result;
 }
 
-//--------------------------------------------------------------------------------------------------
+async function trendingAuthors() {
+  const topAuthors = await redisQuery.scanTop10inSortedSet();
+  let result;
+  console.log(topAuthors.length);
+  if (topAuthors.length == 0) {
+    throw new errorHandler.badRequest('No trending authors');
+  } else {
+    result = new resp('Top authors in order are:', topAuthors);
+  }
+  return result;
+}
+
 /**
  * Query to find a book by given author name pattern
  * @param  {object} req-Request
@@ -127,38 +139,6 @@ async function findByPattern(query) {
   return result;
 }
 
-//--------------------------------------------------------------------------------------------------
-
-// updatePrice : async (bookId, newPrice) => {
-//     let response;
-//     await Book.findByIdAndUpdate(bookId, { $set: { price: Number(newPrice) }}, null, (err,res)=>
-// {
-//         if(err){
-//             response.error = err;
-//         }
-//         else{
-//             response = res;
-//         }
-//     })
-//     return response;
-// },
-
-//--------------------------------------------------------------------------------------------------
-
-// updateGenre : async (bookId, newGenre) => {
-//     let response;
-//     await Book.findByIdAndUpdate(bookId, { $set: { genre: newGenre }}, null, (err,res) => {
-//         if(err){
-//             response.error = err;
-//         }
-//         else{
-//             response = res;
-//         }
-//     })
-//     return response;
-// },
-
-//--------------------------------------------------------------------------------------------------
 /**
  * Query to update a book
  * @param  {object} req-Request
@@ -174,23 +154,6 @@ async function update(data, bookId) {
   }
 }
 
-//--------------------------------------------------------------------------------------------------
-
-// module.exports.delete = async (req,res,next) =>{
-//     try{
-//         let bookId = req.params.bookId;
-//         let docs = await Book.findByIdAndRemove( bookId);
-//         if(docs == null){
-//             throw new errorH.badRequest('No books with given BookId found');
-//         }
-//         else{
-//             res.status(200).json(new resp('Book deleted successfully', docs));
-//         }
-//     }catch(err){
-//         next(err);
-//     }
-
-// }
 /**
  * Query to discard a book
  * @param  {object} req-Request
@@ -215,5 +178,5 @@ async function discard(bookId) {
 
 module.exports = {
   // eslint-disable-next-line max-len
-  bookAdd, findByGenre, countAllBooks, findByAuthor, findByPattern, update, discard,
+  bookAdd, findByGenre, countAllBooks, findByAuthor, findByPattern, update, discard, trendingAuthors,
 };

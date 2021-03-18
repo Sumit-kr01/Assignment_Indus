@@ -5,7 +5,7 @@ const userSchema = Joi.object().keys({
   lastName: Joi.string().required(),
   userName: Joi.string().required(),
   password: Joi.string().pattern(new RegExp('^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,16}$')).required(),
-  repeat_password: Joi.ref('password'),
+  repeatPassword: Joi.ref('password'),
   email: Joi.string()
     .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
   isAdmin: Joi.boolean(),
