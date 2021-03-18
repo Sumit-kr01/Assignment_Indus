@@ -1,4 +1,3 @@
-const { response } = require('express');
 const issueService = require('../service/issue');
 
 /**
@@ -9,7 +8,7 @@ const issueService = require('../service/issue');
  */
 async function last100DayAmount(req, res, next) {
   try {
-    const result = await issueService.last100dayamount(req); console.log(response);
+    const result = await issueService.last100dayamount(req.body, req.params, req.userData);
     res.status(200).json(result);
   } catch (err) {
     next(err);
@@ -24,7 +23,7 @@ async function last100DayAmount(req, res, next) {
  */
 async function getRentedBooks(req, res, next) {
   try {
-    const docs = await issueService.getRented(req);
+    const docs = await issueService.getRented(req.userData, req.params, req.body);
     res.status(200).json(docs);
   } catch (err) {
     next(err);

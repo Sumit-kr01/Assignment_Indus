@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const dotenv = require('dotenv');
 
-const errorH = require('../utils/errorHandler');
+const errorHandler = require('../utils/errorHandler');
 
 dotenv.config();
 
@@ -19,19 +19,19 @@ const { tokenSecret } = process.env;
 async function isLoggedIn(req, res, next) {
   // check for token in the header first, then if not provided, it checks whether it's supplied in the body of the request
   try {
-    if (!req.header('Authorization')) { throw new errorH.authFailed('No token supplied'); }
+    if (!req.header('Authorization')) { throw new errorHandler.authFailed('No token supplied'); }
     const token = req.headers['x-access-token'] || req.header('Authorization').split(' ')[1];
     if (token) {
       jwt.verify(token, tokenSecret, (err, decoded) => {
         if (!err) {
-          req.userData = decoded; // this add the decoded payload to the client req (request) object and make it available in the routes
+          req.userData = decoded;// this add the decoded payload to the client req (request) object and make it available in the routes
           next();
         } else {
           res.status(403).send('Invalid token supplied');
         }
       });
     } else {
-      throw new errorH.authFailed('No token supplied');
+      throw new errorHandler.authFailed('No token supplied');
     }
   } catch (err) {
     res.status(err.statusCode).send(err.message);
@@ -47,7 +47,7 @@ async function isLoggedIn(req, res, next) {
 async function isLoggedInAdmin(req, res, next) {
   // check for token in the header first, then if not provided, it checks whether it's supplied in the body of the request
   try {
-    if (!req.header('Authorization')) { throw new errorH.authFailed('No token supplied'); }
+    if (!req.header('Authorization')) { throw new errorHandler.authFailed('No token supplied'); }
     const token = req.headers['x-access-token'] || req.header('Authorization').split(' ')[1];
     if (token) {
       jwt.verify(token, tokenSecret, (err, decoded) => {
@@ -57,14 +57,14 @@ async function isLoggedInAdmin(req, res, next) {
           if (decoded.isAdmin) {
             next();
           } else {
-            res.send('User must be admin');
+            throw new errorHandler.authFailed('User must be admin');
           }
         } else {
-          throw new errorH.authFailed('Invalid token supplied');
+          throw new errorHandler.authFailed('Invalid token supplied');
         }
       });
     } else {
-      throw new errorH.authFailed('No token supplied');
+      throw new errorHandler.authFailed('No token supplied');
     }
   } catch (err) {
     res.status(err.statusCode).send(err.message);

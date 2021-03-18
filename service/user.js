@@ -9,7 +9,6 @@ const salt = bcrypt.genSaltSync(10);
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const User = require('../models/schema/user');
-// const errorH = require('../../service/errorHandler');
 const errorHandler = require('../utils/errorHandler');
 const userQuery = require('../models/query/user');
 
@@ -88,9 +87,8 @@ async function login(data) {
  * @param  {object} res-Response
  * @param  {*}      nextt-Passes control to next Middleware
  */
-async function makeAdmin(req) {
+async function makeAdmin(userId) {
   let response;
-  const userId = req.params.userId;
   const result = await userQuery.findById(userId);
   if (result == null) {
     throw new errorHandler.badRequest('No user with given userId');

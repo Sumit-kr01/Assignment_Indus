@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 const Issue = require('../schema/issue');
 const Response = require('../../utils/responseHandler');
 
-async function aggregation(req, boundaryDate) {
+async function aggregation(body, params, boundaryDate) {
   const docs = await Issue.aggregate([
     {
       $match: {
-        userId: new mongoose.Types.ObjectId(req.body.userId || req.params.userId),
+        userId: new mongoose.Types.ObjectId(body.userId || params.userId),
         issueDate: { $gt: boundaryDate },
       },
     },
@@ -15,11 +15,11 @@ async function aggregation(req, boundaryDate) {
   return docs;
 }
 
-async function aggregationUser(req, boundaryDate) {
+async function aggregationUser(params, boundaryDate) {
   const docs = await Issue.aggregate([
     {
       $match: {
-        userId: new mongoose.Types.ObjectId(req.params.userId),
+        userId: new mongoose.Types.ObjectId(params.userId),
         issueDate: { $gt: boundaryDate },
       },
     },

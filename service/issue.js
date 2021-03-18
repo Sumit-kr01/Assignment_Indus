@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 const issueQuery = require('../models/query/issue');
 const bookQuery = require('../models/query/book');
 
-const errorH = require('../utils/errorHandler');
+const errorHandler = require('../utils/errorHandler');
 
 dotenv.config();
 const resp = require('../utils/responseHandler');
@@ -18,23 +18,23 @@ const resp = require('../utils/responseHandler');
  * @param  {object} res-Response
  * @param  {*}      nextt-Passes control to next Middleware
  */
-async function last100dayamount(req) {
+async function last100dayamount(body, params, userData) {
   let docs;
   let response;
   const date = new Date();
   const daysUpto = 100;
   const boundaryDate = new Date(date.setDate(date.getDate() - daysUpto));
-  const admin = req.userData.isAdmin;
+  const admin = userData.isAdmin;
   if (admin) {
-    docs = await issueQuery.aggregation(req, boundaryDate);
+    docs = await issueQuery.aggregation(body, params, boundaryDate);
     if (docs.length == 0) {
       response = new resp('No issues in last 100 days for this user', null);
     } else {
       console.log(`Total cost in last 100 days = ${docs[0].total}`);
       response = new resp(`Total cost in last 100 days = ${docs[0].total}`, null);
     }
-  } else if (req.userData.id == req.params.userId) {
-    docs = await issueQuery.aggregationUser(req, boundaryDate);
+  } else if (userData.id == params.userId) {
+    docs = await issueQuery.aggregationUser(params, boundaryDate);
     if (docs.length == 0) {
       response = new resp('No issues in last 100 days for this user', null);
     } else {
@@ -42,7 +42,7 @@ async function last100dayamount(req) {
       response = new resp(`Total cost in last 100 days = ${docs[0].total}`, null);
     }
   } else {
-    throw new errorH.authFailed('Invalid token supplied');
+    throw new errorHandler.authFailed('Invalid token supplied');
   }
   console.log(response);
   return response;
@@ -54,19 +54,17 @@ async function last100dayamount(req) {
  * @param  {object} res-Response
  * @param  {*}      nextt-Passes control to next Middleware
  */
-async function getRented(req) {
+async function getRented(userData, params, body) {
   let docs;
-  const { userData } = req;
   const bookArr = [];
   let response;
-  if (req.params.userId != userData.id) {
-    throw new errorH.badRequest('Invalid request');
+  if (params.userId != userData.id) {
+    throw new errorHandler.badRequest('Invalid request');
   } else if (userData.isAdmin) {
-    docs = await issueQuery.findBooksByUserIdAdmin(req.body.userId, userData.id);
+    docs = await issueQuery.findBooksByUserIdAdmin(body.userId, userData.id);
     if (docs.length == 0) {
       response = new resp('No book rented to this user', null);
     } else {
-      console.log(docs); console.log(docs[0].bookId.title);
       for (const item of docs) {
         console.log(item.bookId.title);
         bookArr.push(item.bookId.title);
@@ -104,7 +102,7 @@ async function issueBook(userData, params) {
   const { bookId } = params;
   const bookData = await bookQuery.findById(bookId);
   if (bookData.length == 0) {
-    throw new errorH.badRequest('Book not found');
+    throw new errorHandler.badRequest('Book not found');
   } else {
     const copies = await bookData[0].copies;
 
@@ -123,7 +121,7 @@ async function issueBook(userData, params) {
       } else {
         const numberOfIssues = await issueQuery.findByUserId({ userId: user.id, active: true });
         if (numberOfIssues >= 5) {
-          throw new errorH.badRequest('Cannot issue more than 5 books!!!!');
+          throw new errorHandler.badRequest('Cannot issue more than 5 books!!!!');
         } else {
           console.log('Book can be issued');
 
@@ -154,7 +152,7 @@ async function daysToRent(bookId) {
   let result;
   const bookData = await bookQuery.findById(bookId);
   if (bookData.length == 0) {
-    throw new errorH.badRequest('No books with given BookId');
+    throw new errorHandler.badRequest('No books with given BookId');
   } else {
     const { copies } = bookData[0];
     const issuedCopies = await issueQuery.findByBookId({ bookId, active: true });

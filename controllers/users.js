@@ -39,7 +39,7 @@ async function login(req, res, next) {
  */
 async function makeAdmin(req, res, next) {
   try {
-    const result = await userService.makeAdmin(req, res, next);
+    const result = await userService.makeAdmin(req.params.userId);
     res.status(200).json(result);
   } catch (err) {
     next(err);

@@ -7,7 +7,7 @@ mongoose.set('useFindAndModify', false);
 const Book = require('../models/schema/book');
 
 const bookQuery = require('../models/query/book');
-const errorH = require('../utils/errorHandler');
+const errorHandler = require('../utils/errorHandler');
 const resp = require('../utils/responseHandler');
 // eslint-disable-next-line max-len
 //-------------------------------------------------------------------------------------------------------------------------
@@ -18,13 +18,12 @@ const resp = require('../utils/responseHandler');
  * @param  {object} res Response
  * @param  {*}      next Passes control to next Middleware
  */
-async function bookAdd(req) {
-  const { data } = req;
+async function bookAdd(data) {
   let response;
   console.log(data);
   const book = await bookQuery.findBookByTitle(data.title);
   if (book.length != 0) {
-    throw new errorH.existingUser('Book already exists');
+    throw new errorHandler.existingUser('Book already exists');
   } else {
     const save = await bookQuery.saveBook(data);
     response = save;
@@ -44,7 +43,7 @@ async function findByGenre(genre, offset) {
   let result;
   const books = await bookQuery.findByGenre(genre, offset); console.log(books);
   if (books.length == 0) {
-    throw new errorH.notFound('No books with given genre');
+    throw new errorHandler.notFound('No books with given genre');
   } else {
     result = new resp(`Number of books with genre ${genre} is ${books.length}.`, null);
   }
@@ -99,7 +98,7 @@ async function findByAuthor(query) {
 
   const docs = await bookQuery.findByAuthor({ 'author.fName': author.split(' ')[0], 'author.lName': author.split(' ')[1] }, offset);
   if (docs.length == 0) {
-    throw new errorH.notFound('No books with given author name');
+    throw new errorHandler.notFound('No books with given author name');
   } else {
     result = new resp('Books found for given Author Name:', docs);
   }
@@ -120,7 +119,7 @@ async function findByPattern(query) {
   const books = await bookQuery.findByAuthorNamePattern(pattern);
   if (books.length == 0) {
     console.log('error');
-    throw new errorH.notFound('No books with given author name');
+    throw new errorHandler.notFound('No books with given author name');
   } else {
     console.log('OK');
     result = new resp('Books found are:', books);
@@ -169,7 +168,7 @@ async function findByPattern(query) {
 async function update(data, bookId) {
   const docs = await Book.findByIdAndUpdate(bookId, data);
   if (docs === null) {
-    throw new errorH.notFound('No books found with given BookId');
+    throw new errorHandler.notFound('No books found with given BookId');
   } else {
     return new resp('Book updated successfully', docs);
   }
@@ -202,9 +201,9 @@ async function discard(bookId) {
   let result;
   const docs = await bookQuery.findByIdAll(bookId);
   if (docs == null) {
-    throw new errorH.notFound('No books with given BookId found');
+    throw new errorHandler.notFound('No books with given BookId found');
   } else if (docs.isDiscarded) {
-    throw new errorH.badRequest('Book already discarded');
+    throw new errorHandler.badRequest('Book already discarded');
   } else {
     docs.isDiscarded = true;
     await docs.save();
