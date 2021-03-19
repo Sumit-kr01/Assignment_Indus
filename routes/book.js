@@ -31,9 +31,9 @@ router.get('/genre/:genre', authorizer.isLoggedIn, book.byGenre);// complete API
 router.get('/all', authorizer.isLoggedIn, book.countAll);
 router.get('/rented', authorizer.isLoggedInAdmin, issue.countRented);
 router.get('/:bookId/days', authorizer.isLoggedIn, issue.daysToRent);
-router.get('/author', book.findByAuthor);// complete API is like /books/author?author=xyz&offset=number
-router.get('/authorName', authorizer.isLoggedIn, book.findByPattern);// /books/authorName?pattern=xyz
-router.get('/trendingAuthors', book.trendingAuthor);
+router.get('/author', authorizer.isLoggedIn, book.findByAuthor);// complete API is like /books/author?author=xyz&offset=number
+router.get('/authorName', authorizer.isLoggedIn, book.findByPattern);// /books/authorName?pattern=xyz&offset=number
+router.get('/trendingAuthors', authorizer.isLoggedIn, book.trendingAuthor);
 // router.patch('/:bookId/price', book.updatePrice);
 // router.patch('/:bookId/genre', book.updateGenre);
 router.patch('/:bookId', validator.updateBook, authorizer.isLoggedInAdmin, book.update);

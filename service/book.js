@@ -14,7 +14,7 @@ const redisQuery = require('../helperFunctions/redisQuery');
 
 const bookQuery = require('../models/query/book');
 const errorHandler = require('../utils/errorHandler');
-const resp = require('../utils/responseHandler');
+const ResponseClass = require('../utils/responseHandler');
 
 /**
  * Query to insert book into DB
@@ -48,7 +48,7 @@ async function findByGenre(genre, offset) {
   if (books.length == 0) {
     throw new errorHandler.notFound('No books with given genre');
   } else {
-    result = new resp(`Number of books with genre ${genre} is ${books.length}.`, null);
+    result = new ResponseClass(`Number of books with genre ${genre} is ${books.length}.`, null);
   }
   return result;
 }
@@ -60,7 +60,7 @@ async function findByGenre(genre, offset) {
  */
 async function countAllBooks() {
   const docs = await bookQuery.countAll();
-  return new resp(`Total number of books in store is ${docs[0].total}`, docs[0].total);
+  return new ResponseClass(`Total number of books in store is ${docs[0].total}`, docs[0].total);
 }
 
 /**
@@ -82,7 +82,7 @@ async function findByAuthor(query) {
   if (cacheData.length != 0) {
     parsedCacheData = JSON.parse(cacheData);
     await redisQuery.addToSortedSet(author);
-    result = new resp('Books found for given Author Name:', parsedCacheData);
+    result = new ResponseClass('Books found for given Author Name:', parsedCacheData);
   }
   // Else make a db query
   else if (cacheData.length == 0) {
@@ -92,7 +92,7 @@ async function findByAuthor(query) {
     } else {
       // Increase author score by 1
       await redisQuery.addToSortedSet(author);
-      result = new resp('Books found for given Author Name:', docs);
+      result = new ResponseClass('Books found for given Author Name:', docs);
     }
     // Add author's Book to cache if author is in top 10
     const trendingAuthors = await redisQuery.scanTop10inSortedSet();
@@ -114,7 +114,7 @@ async function trendingAuthors() {
   if (topAuthors.length == 0) {
     throw new errorHandler.badRequest('No trending authors');
   } else {
-    result = new resp('Top authors in order are:', topAuthors);
+    result = new ResponseClass('Top authors in order are:', topAuthors);
   }
   return result;
 }
@@ -127,14 +127,14 @@ async function trendingAuthors() {
  */
 async function findByPattern(query) {
   let result;
-  const { pattern } = query;
-  const books = await bookQuery.findByAuthorNamePattern(pattern);
+  const { pattern, offset } = query;
+  const books = await bookQuery.findByAuthorNamePattern(pattern, offset);
   if (books.length == 0) {
     console.log('error');
     throw new errorHandler.notFound('No books with given author name');
   } else {
     console.log('OK');
-    result = new resp('Books found are:', books);
+    result = new ResponseClass('Books found are:', books);
   }
   return result;
 }
@@ -150,7 +150,7 @@ async function update(data, bookId) {
   if (docs === null) {
     throw new errorHandler.notFound('No books found with given BookId');
   } else {
-    return new resp('Book updated successfully', docs);
+    return new ResponseClass('Book updated successfully', docs);
   }
 }
 
@@ -170,7 +170,7 @@ async function discard(bookId) {
   } else {
     docs.isDiscarded = true;
     await docs.save();
-    result = new resp('Book discarded successfully', docs);
+    result = new ResponseClass('Book discarded successfully', docs);
     console.log('discarded');
   }
   return result;

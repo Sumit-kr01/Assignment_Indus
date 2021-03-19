@@ -3,14 +3,12 @@
 /* eslint-disable no-useless-catch */
 /* eslint-disable new-cap */
 /* eslint-disable eqeqeq */
-const dotenv = require('dotenv');
 const issueQuery = require('../models/query/issue');
 const bookQuery = require('../models/query/book');
 
 const errorHandler = require('../utils/errorHandler');
 
-dotenv.config();
-const resp = require('../utils/responseHandler');
+const ResponseClass = require('../utils/responseHandler');
 
 /**
  * Query to discard a book
@@ -28,18 +26,18 @@ async function last100dayamount(body, params, userData) {
   if (admin) {
     docs = await issueQuery.aggregation(body, params, boundaryDate);
     if (docs.length == 0) {
-      response = new resp('No issues in last 100 days for this user', null);
+      response = new ResponseClass('No issues in last 100 days for this user', null);
     } else {
       console.log(`Total cost in last 100 days = ${docs[0].total}`);
-      response = new resp(`Total cost in last 100 days = ${docs[0].total}`, null);
+      response = new ResponseClass(`Total cost in last 100 days = ${docs[0].total}`, null);
     }
   } else if (userData.id == params.userId) {
     docs = await issueQuery.aggregationUser(params, boundaryDate);
     if (docs.length == 0) {
-      response = new resp('No issues in last 100 days for this user', null);
+      response = new ResponseClass('No issues in last 100 days for this user', null);
     } else {
       console.log(`Total cost in last 100 days = ${docs[0].total}`);
-      response = new resp(`Total cost in last 100 days = ${docs[0].total}`, null);
+      response = new ResponseClass(`Total cost in last 100 days = ${docs[0].total}`, null);
     }
   } else {
     throw new errorHandler.authFailed('Invalid token supplied');
@@ -63,19 +61,19 @@ async function getRented(userData, params, body) {
   } else if (userData.isAdmin) {
     docs = await issueQuery.findBooksByUserIdAdmin(body.userId, userData.id);
     if (docs.length == 0) {
-      response = new resp('No book rented to this user', null);
+      response = new ResponseClass('No book rented to this user', null);
     } else {
       for (const item of docs) {
         console.log(item.bookId.title);
         bookArr.push(item.bookId.title);
       }
       bookArr.push(`Total number of books rented is ${docs.length}.`);
-      response = new resp('Following books are rented:', bookArr);
+      response = new ResponseClass('Following books are rented:', bookArr);
     }
   } else {
     docs = await issueQuery.findBooksByUserId(userData.id);
     if (docs.length == 0) {
-      response = new resp('No book rented to this user', null);
+      response = new ResponseClass('No book rented to this user', null);
     } else {
       console.log(docs); console.log(docs[0].bookId.title);
       for (const item of docs) {
@@ -83,7 +81,7 @@ async function getRented(userData, params, body) {
         bookArr.push(item.bookId.title);
       }
       bookArr.push(`Total number of books rented is ${docs.length}.`);
-      response = new resp('Following books are rented:', bookArr);
+      response = new ResponseClass('Following books are rented:', bookArr);
     }
   }
   return response;
@@ -117,7 +115,7 @@ async function issueBook(userData, params) {
       const userAge = Math.ceil((presentDate - userDOB) / (1000 * 60 * 60 * 24 * 365));
       const bookAgeCategory = bookData[0].minAgeCategory;
       if (userAge < bookAgeCategory) {
-        result = new resp('This book cannot be issued to your age group.', null);
+        result = new ResponseClass('This book cannot be issued to your age group.', null);
       } else {
         const numberOfIssues = await issueQuery.findByUserId({ userId: user.id, active: true });
         if (numberOfIssues >= 5) {
@@ -135,7 +133,7 @@ async function issueBook(userData, params) {
         }
       }
     } else {
-      result = new resp('This book is currently out of stock', null);
+      result = new ResponseClass('This book is currently out of stock', null);
     }
     return result;
   }
@@ -160,7 +158,7 @@ async function daysToRent(bookId) {
     const avlCopies = copies - issuedCopies;
     if (avlCopies > 0) {
       console.log('Book can be rented now');
-      result = new resp('Book can be rented now', null);
+      result = new ResponseClass('Book can be rented now', null);
     } else {
       const oldestIssueDate = await issueQuery.findByBookIdandSort({ bookId, active: true });
       // console.log(oldest[0].returnDate);
@@ -170,7 +168,7 @@ async function daysToRent(bookId) {
       console.log(numOfDays);
       // res.send(`This book can be rented after ${numOfDays} days `);
       // new Date(date.setDate(date.getDate() - daysUpto));
-      result = new resp(`This book can be rented after ${numOfDays} days.`, null);
+      result = new ResponseClass(`This book can be rented after ${numOfDays} days.`, null);
     }
   }
   return result;
@@ -184,7 +182,7 @@ async function daysToRent(bookId) {
  */
 async function countRented() {
   const docs = await issueQuery.countRented();
-  return new resp(`Total number of rented books in the store is ${docs}`, docs);
+  return new ResponseClass(`Total number of rented books in the store is ${docs}`, docs);
 }
 module.exports = {
   last100dayamount, getRented, issueBook, daysToRent, countRented,

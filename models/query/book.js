@@ -29,15 +29,15 @@ async function countAll() {
   return docs;
 }
 
-async function findByAuthor(object, offset) {
-  const docs = await Book.find(object, null, { skip: Number(offset), limit: 2 });
+async function findByAuthor(parameter, offset) {
+  const docs = await Book.find(parameter, null, { skip: Number(offset), limit: 50 });
   return docs;
 }
 
-async function findByAuthorNamePattern(pattern) {
+async function findByAuthorNamePattern(pattern, offset) {
   const docs = await Book.find({
     $or: [{ 'author.fName': new RegExp(`${pattern}`) }, { 'author.lName': new RegExp(`${pattern}`) }],
-  }).exec();
+  }, null, { skip: Number(offset), limit: 50 });
   return docs;
 }
 

@@ -13,7 +13,7 @@ const errorHandler = require('../utils/errorHandler');
 const userQuery = require('../models/query/user');
 
 dotenv.config();
-const resp = require('../utils/responseHandler');
+const ResponseClass = require('../utils/responseHandler');
 
 const { tokenSecret } = process.env;
 
@@ -41,7 +41,7 @@ async function signup(data) {
     });
     // await newuser.save();
     await userQuery.userSave(newuser);
-    return new resp('Registration successful', null);
+    return new ResponseClass('Registration successful', null);
   }
 }
 
@@ -70,7 +70,7 @@ async function login(data) {
       };
       const token = jwt.sign(payload, tokenSecret, { expiresIn: 60 * 60 });
       // res.status(200).json(new resp('Login successful', { token }));
-      return new resp('Login successful', { token });
+      return new ResponseClass('Login successful', { token });
     }
 
     throw new errorHandler.authFailed('Password Incorrect!!');
@@ -97,7 +97,7 @@ async function makeAdmin(userId) {
   } else {
     result.isAdmin = true;
     await userQuery.userSave(result)
-      .then(() => { response = new resp('User is now admin.', result._id); })
+      .then(() => { response = new ResponseClass('User is now admin.', result._id); })
       .catch(() => { throw new errorHandler.badRequest('Internal server error'); });
   }
   return response;
@@ -119,7 +119,7 @@ async function deactivate(userId) {
   } else {
     result.isActive = false;
     await userQuery.userSave(result)
-      .then(() => { response = new resp('User Deactivated.', result); })
+      .then(() => { response = new ResponseClass('User Deactivated.', result); })
       .catch(() => { throw new errorHandler.badRequest('Internal server error'); });
   }
   return response;
