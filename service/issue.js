@@ -8,13 +8,13 @@ const bookQuery = require('../models/query/book');
 
 const errorHandler = require('../utils/errorHandler');
 
-const ResponseClass = require('../utils/responseHandler');
+const ResponseClass = require('../utils/responseHandlerClass');
 
 /**
- * Query to discard a book
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service to find amount spent by user in last 100 days
+ * @param  {object} body
+ * @param  {object} params
+ * @param  {object} userData
  */
 async function last100dayamount(body, params, userData) {
   let docs;
@@ -47,10 +47,10 @@ async function last100dayamount(body, params, userData) {
 }
 
 /**
- * Query to get all the rented books by a user
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service to get all the rented books by a user
+ * @param  {object} userData
+ * @param  {object} params
+ * @param  {object} body
  */
 async function getRented(userData, params, body) {
   let docs;
@@ -88,10 +88,9 @@ async function getRented(userData, params, body) {
 }
 
 /**
- * Query to issue a book to user
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service to issue a book to user
+ * @param  {object} userData
+ * @param  {object} params
  */
 async function issueBook(userData, params) {
   // eslint-disable-next-line prefer-destructuring
@@ -141,10 +140,8 @@ async function issueBook(userData, params) {
 // }
 
 /**
- * Query to find the number of days after which a book can be rented if currently out of stock
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service to find the number of days after which a book can be rented if currently out of stock
+ * @param  {string} bookId
  */
 async function daysToRent(bookId) {
   let result;
@@ -175,10 +172,7 @@ async function daysToRent(bookId) {
 }
 
 /**
- * Query to count total number of rented books
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service to count total number of rented books
  */
 async function countRented() {
   const docs = await issueQuery.countRented();

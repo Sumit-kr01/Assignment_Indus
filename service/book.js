@@ -14,13 +14,11 @@ const redisQuery = require('../helperFunctions/redisQuery');
 
 const bookQuery = require('../models/query/book');
 const errorHandler = require('../utils/errorHandler');
-const ResponseClass = require('../utils/responseHandler');
+const ResponseClass = require('../utils/responseHandlerClass');
 
 /**
- * Query to insert book into DB
- * @param  {object} req Request
- * @param  {object} res Response
- * @param  {*}      next Passes control to next Middleware
+ * Service function to add book to collection
+ * @param  {object} data
  */
 async function bookAdd(data) {
   let response;
@@ -36,10 +34,9 @@ async function bookAdd(data) {
 }
 
 /**
- * Query to find book by given genre
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service function to find book by genre
+ * @param  {string} genre
+ * @param  {number} offset
  */
 async function findByGenre(genre, offset) {
   console.log(genre);
@@ -52,11 +49,11 @@ async function findByGenre(genre, offset) {
   }
   return result;
 }
+
 /**
- * Query to count total number of books in store
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service function to count total number of books in store
+ * @param  {string} genre
+ * @param  {number} offset
  */
 async function countAllBooks() {
   const docs = await bookQuery.countAll();
@@ -64,16 +61,14 @@ async function countAllBooks() {
 }
 
 /**
- * Query to find a book by author name
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service function to find all books by author if available in redis else fron database
+ * @param  {object} query
  */
 async function findByAuthor(query) {
   let result;
   let parsedCacheData;
   const { author } = query;
-  const { offset } = query; console.log(offset); console.log(author);
+  const { offset } = query;
 
   // First query in cache
   const cacheData = await redisQuery.findInSet(author);
@@ -106,13 +101,15 @@ async function findByAuthor(query) {
   }
   return result;
 }
-
+/**
+ * Service function to find top 10 trending authors from redis
+ */
 async function trendingAuthors() {
   const topAuthors = await redisQuery.scanTop10inSortedSet();
   let result;
   console.log(topAuthors.length);
   if (topAuthors.length == 0) {
-    throw new errorHandler.badRequest('No trending authors');
+    result = new ResponseClass('No trending authors', null);
   } else {
     result = new ResponseClass('Top authors in order are:', topAuthors);
   }
@@ -120,10 +117,8 @@ async function trendingAuthors() {
 }
 
 /**
- * Query to find a book by given author name pattern
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service function to find all books by author name pattern
+ * @param {object} query
  */
 async function findByPattern(query) {
   let result;
@@ -140,10 +135,9 @@ async function findByPattern(query) {
 }
 
 /**
- * Query to update a book
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service function to find book and update
+ * @param  {object} data
+ * @param  {string} bookId
  */
 async function update(data, bookId) {
   const docs = await Book.findByIdAndUpdate(bookId, data);
@@ -155,10 +149,8 @@ async function update(data, bookId) {
 }
 
 /**
- * Query to discard a book
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service function to discard a book
+ * @param  {string} bookId
  */
 async function discard(bookId) {
   let result;

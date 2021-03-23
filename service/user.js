@@ -13,7 +13,7 @@ const errorHandler = require('../utils/errorHandler');
 const userQuery = require('../models/query/user');
 
 dotenv.config();
-const ResponseClass = require('../utils/responseHandler');
+const ResponseClass = require('../utils/responseHandlerClass');
 
 const { tokenSecret } = process.env;
 
@@ -82,10 +82,8 @@ async function login(data) {
 }
 
 /**
- * Query to change user controls to admin if currently logged in user is admin
- * @param  {object} req-Request
- * @param  {object} res-Response
- * @param  {*}      nextt-Passes control to next Middleware
+ * Service to change user controls to admin if currently logged in user is admin
+ * @param  {string} userId
  */
 async function makeAdmin(userId) {
   let response;
@@ -104,10 +102,8 @@ async function makeAdmin(userId) {
 }
 
 /**
- * Query to deactivate a user
- * @param  {object} req Request
- * @param  {object} res Response
- * @param  {*}      next Passes control to next Express
+ * Service to deactivate a user
+ * @param  {string} userId
  */
 async function deactivate(userId) {
   let response;

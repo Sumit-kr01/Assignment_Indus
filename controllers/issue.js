@@ -1,7 +1,7 @@
 const issueService = require('../service/issue');
 
 /**
- * Controller to fin the amount spent by user in last 100 days
+ * Controller to find the amount spent by user in last 100 days
  * @param  {object} req Request
  * @param  {object} res Response
  * @param  {*}      next Pass control to next middleware function

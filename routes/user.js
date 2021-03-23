@@ -18,4 +18,5 @@ router.get('/:userId/books', authorizer.isLoggedIn, issue.getRentedBooks);
 router.post('/:userId/makeAdmin', authorizer.isLoggedInAdmin, users.makeAdmin);
 
 router.delete('/:userId', authorizer.isLoggedInAdmin, users.deactivate);
+
 module.exports = router;

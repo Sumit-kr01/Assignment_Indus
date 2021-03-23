@@ -49,7 +49,7 @@ async function countAll(req, res, next) {
  * Controller to find all books by a given author name
  * @param  {object} req Request
  * @param  {object} res Response
- * @param  {*}      next Pass control to next middle  ware function
+ * @param  {*}      next Pass control to next middleware function
  */
 async function findByAuthor(req, res, next) {
   try {
@@ -63,6 +63,12 @@ async function findByAuthor(req, res, next) {
   }
 }
 
+/**
+ * Controller to find all books by a given author name
+ * @param  {object} req Request
+ * @param  {object} res Response
+ * @param  {*}      next Pass control to next middleware function
+ */
 async function trendingAuthor(req, res, next) {
   try {
     const result = await bookService.trendingAuthors();

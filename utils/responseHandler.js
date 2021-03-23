@@ -1,9 +1,1 @@
-class response {
-  constructor(message, data) {
-    this.message = message;
-    this.data = data;
-    this.error = null;
-  }
-}
-
-module.exports = response;
+module.exports = (res, responseObject) => res.status(200).json(responseObject);

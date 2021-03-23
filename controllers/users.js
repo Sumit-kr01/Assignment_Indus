@@ -1,4 +1,7 @@
+/* eslint-disable consistent-return */
 /* eslint-disable max-len */
+const response = require('../utils/responseHandler');
+
 const userService = require('../service/user');
 
 /**
@@ -10,7 +13,7 @@ const userService = require('../service/user');
 async function register(req, res, next) {
   try {
     const signup = await userService.signup(req.data);
-    res.status(200).json(signup);
+    return response(res, signup);
   } catch (err) {
     next(err);
   }
@@ -24,8 +27,8 @@ async function register(req, res, next) {
  */
 async function login(req, res, next) {
   try {
-    const response = await userService.login(req.data);
-    res.status(200).json(response);
+    const result = await userService.login(req.data);
+    return response(res, result);
   } catch (err) {
     next(err);
   }
