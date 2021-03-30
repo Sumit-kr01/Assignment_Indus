@@ -1,3 +1,6 @@
+/* eslint-disable consistent-return */
+const responseHandler = require('../utils/responseHandler');
+
 const bookService = require('../service/book');
 
 /**
@@ -9,7 +12,7 @@ const bookService = require('../service/book');
 async function addBook(req, res, next) {
   try {
     const response = await bookService.bookAdd(req.data);
-    res.status(200).json(response);
+    return responseHandler(res, response);
   } catch (err) {
     next(err);
   }
@@ -24,7 +27,7 @@ async function addBook(req, res, next) {
 async function byGenre(req, res, next) {
   try {
     const result = await bookService.findByGenre(req.params.genre, req.query.offset);
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -39,7 +42,7 @@ async function byGenre(req, res, next) {
 async function countAll(req, res, next) {
   try {
     const result = await bookService.countAllBooks();
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -55,9 +58,7 @@ async function findByAuthor(req, res, next) {
   try {
     const result = await bookService.findByAuthor(req.query);
 
-    res.status(200).json(result);
-    //   }
-    // });
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -72,7 +73,7 @@ async function findByAuthor(req, res, next) {
 async function trendingAuthor(req, res, next) {
   try {
     const result = await bookService.trendingAuthors();
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -87,7 +88,7 @@ async function trendingAuthor(req, res, next) {
 async function findByPattern(req, res, next) {
   try {
     const result = await bookService.findByPattern(req.query);
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -102,7 +103,7 @@ async function findByPattern(req, res, next) {
 async function update(req, res, next) {
   try {
     const result = await bookService.update(req.data, req.params.bookId);
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -117,12 +118,29 @@ async function update(req, res, next) {
 async function discard(req, res, next) {
   try {
     const result = await bookService.discard(req.params.bookId);
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
 }
 
+// async function findByString(req, res, next) {
+//   try {
+//     const result = await bookService.findByString(req.body.string);
+//     return responseHandler(res, result);
+//   } catch (err) {
+//     next(err);
+//   }
+// }
+
 module.exports = {
-  addBook, byGenre, countAll, findByAuthor, findByPattern, update, discard, trendingAuthor,
+  addBook,
+  byGenre,
+  countAll,
+  findByAuthor,
+  findByPattern,
+  update,
+  discard,
+  trendingAuthor,
+  findByString,
 };

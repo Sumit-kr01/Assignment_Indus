@@ -3,8 +3,8 @@ const express = require('express');
 const router = express.Router();
 const validator = require('../helperFunctions/validators/book');
 const authorizer = require('../middleware/authorization');
-const book = require('../controllers/books');
-const issue = require('../controllers/issue');
+const book = require('../controllers/booksController');
+const issue = require('../controllers/issueController');
 
 router.post('/new', authorizer.isLoggedInAdmin, validator.addBook, book.addBook);
 
@@ -27,5 +27,7 @@ router.get('/trendingAuthors', authorizer.isLoggedIn, book.trendingAuthor);
 router.patch('/:bookId', validator.updateBook, authorizer.isLoggedInAdmin, book.update);
 
 router.delete('/:bookId', authorizer.isLoggedInAdmin, book.discard);
+
+// router.get('/stringSearch', book.findByString);
 
 module.exports = router;

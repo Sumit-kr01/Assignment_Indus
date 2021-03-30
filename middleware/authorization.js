@@ -27,11 +27,11 @@ async function isLoggedIn(req, res, next) {
           req.userData = decoded;// this add the decoded payload to the client req (request) object and make it available in the routes
           next();
         } else {
-          res.status(403).send('Invalid token supplied');
+          throw new errorHandler.authFailed('No/Invalid token supplied');
         }
       });
     } else {
-      throw new errorHandler.authFailed('No token supplied');
+      throw new errorHandler.authFailed('No/Invalid token supplied');
     }
   } catch (err) {
     res.status(err.statusCode).send(err.message);
@@ -53,7 +53,6 @@ async function isLoggedInAdmin(req, res, next) {
       jwt.verify(token, tokenSecret, (err, decoded) => {
         if (!err) {
           req.userData = decoded; // this add the decoded payload to the client req (request) object and make it available in the routes
-          console.log(req.userData);
           if (decoded.isAdmin) {
             next();
           } else {

@@ -1,5 +1,7 @@
+/* eslint-disable new-cap */
 const bookAddVaidator = require('../../models/validationSchema/bookAddValidator');
 const bookUpdateValidator = require('../../models/validationSchema/bookUpdateValidator');
+const errorHandler = require('../../utils/errorHandler');
 
 /**
  * Function to validate inputs while adding a new book.
@@ -8,16 +10,17 @@ const bookUpdateValidator = require('../../models/validationSchema/bookUpdateVal
  * @param  {*}      next Pass control to next middleware function
  */
 async function addBook(req, res, next) {
-  const data = await req.body;
-  const output = bookAddVaidator.validate(data);
-  console.log(output);
-  const resObj = { message: '', data: '', error: '' };
-  if (output.error) {
-    resObj.error = output.error.details[0].message;
-    res.send(resObj);
-  } else {
-    req.data = data;
-    next();
+  try {
+    const data = await req.body;
+    const output = bookAddVaidator.validate(data);
+    if (output.error) {
+      throw new errorHandler.badRequest(output.error.details[0].message);
+    } else {
+      req.data = data;
+      next();
+    }
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -28,17 +31,17 @@ async function addBook(req, res, next) {
  * @param  {*}      next Pass control to next middleware function
  */
 async function updateBook(req, res, next) {
-  const data = await req.body;
-
-  const output = bookUpdateValidator.validate(data);
-
-  const resObj = { message: '', data: '', error: '' };
-  if (output.error) {
-    resObj.error = output.error.details[0].message;
-    res.send(resObj);
-  } else {
-    req.data = data;
-    next();
+  try {
+    const data = await req.body;
+    const output = bookUpdateValidator.validate(data);
+    if (output.error) {
+      throw new errorHandler.badRequest(output.error.details[0].message);
+    } else {
+      req.data = data;
+      next();
+    }
+  } catch (err) {
+    next(err);
   }
 }
 

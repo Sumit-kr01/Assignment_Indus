@@ -89,6 +89,17 @@ async function findByIdAll(id) {
   return docs;
 }
 
+// async function search(string) {
+//   const docs = await Book.search({
+//     query_string: {
+//       query: string,
+//     },
+//   }, (err, results) => {
+//     console.log(results);
+//   });
+//   return docs;
+// }
+
 module.exports = {
   findBookByTitle,
   saveBook,
@@ -99,4 +110,5 @@ module.exports = {
   findByAuthorNamePattern,
   findByIdAndUpdate,
   findByIdAll,
+//  search,
 };

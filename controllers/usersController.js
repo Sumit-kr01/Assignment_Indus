@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
 /* eslint-disable max-len */
-const response = require('../utils/responseHandler');
+const responseHandler = require('../utils/responseHandler');
 
 const userService = require('../service/user');
 
@@ -13,7 +13,7 @@ const userService = require('../service/user');
 async function register(req, res, next) {
   try {
     const signup = await userService.signup(req.data);
-    return response(res, signup);
+    return responseHandler(res, signup);
   } catch (err) {
     next(err);
   }
@@ -28,7 +28,7 @@ async function register(req, res, next) {
 async function login(req, res, next) {
   try {
     const result = await userService.login(req.data);
-    return response(res, result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -43,7 +43,7 @@ async function login(req, res, next) {
 async function makeAdmin(req, res, next) {
   try {
     const result = await userService.makeAdmin(req.params.userId);
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -58,7 +58,7 @@ async function makeAdmin(req, res, next) {
 async function deactivate(req, res, next) {
   try {
     const result = await userService.deactivate(req.params.userId);
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }

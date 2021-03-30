@@ -1,4 +1,7 @@
+/* eslint-disable consistent-return */
 const issueService = require('../service/issue');
+
+const responseHandler = require('../utils/responseHandler');
 
 /**
  * Controller to find the amount spent by user in last 100 days
@@ -9,7 +12,7 @@ const issueService = require('../service/issue');
 async function last100DayAmount(req, res, next) {
   try {
     const result = await issueService.last100dayamount(req.body, req.params, req.userData);
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -24,7 +27,7 @@ async function last100DayAmount(req, res, next) {
 async function getRentedBooks(req, res, next) {
   try {
     const docs = await issueService.getRented(req.userData, req.params, req.body);
-    res.status(200).json(docs);
+    return responseHandler(res, docs);
   } catch (err) {
     next(err);
   }
@@ -39,7 +42,7 @@ async function getRentedBooks(req, res, next) {
 async function issueBook(req, res, next) {
   try {
     const result = await issueService.issueBook(req.userData, req.params);
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -54,7 +57,7 @@ async function issueBook(req, res, next) {
 async function daysToRent(req, res, next) {
   try {
     const result = await issueService.daysToRent(req.params.bookId);
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }
@@ -69,7 +72,7 @@ async function daysToRent(req, res, next) {
 async function countRented(req, res, next) {
   try {
     const result = await issueService.countRented();
-    res.status(200).json(result);
+    return responseHandler(res, result);
   } catch (err) {
     next(err);
   }

@@ -1,5 +1,7 @@
+/* eslint-disable new-cap */
 const signupV = require('../../models/validationSchema/userSignupValidator');
 const loginV = require('../../models/validationSchema/userLoginValidatior');
+const errorHandler = require('../../utils/errorHandler');
 
 /**
  * Function to validate inputs while new user signup
@@ -8,15 +10,17 @@ const loginV = require('../../models/validationSchema/userLoginValidatior');
  * @param  {*}      next Pass control to next middleware function
  */
 async function signup(req, res, next) {
-  const data = await req.body;
-  const output = signupV.validate(data);
-  const resObj = { message: '', data: '', error: '' };
-  if (output.error) {
-    resObj.error = output.error.details[0].message;
-    res.status(400).json(resObj);
-  } else {
-    req.data = data;
-    next();
+  try {
+    const data = await req.body;
+    const output = signupV.validate(data);
+    if (output.error) {
+      throw new errorHandler.badRequest(output.error.details[0].message);
+    } else {
+      req.data = data;
+      next();
+    }
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -27,15 +31,17 @@ async function signup(req, res, next) {
  * @param  {*}      next Pass control to next middleware function
  */
 async function signin(req, res, next) {
-  const loginData = await req.body;
-  const output = loginV.validate(loginData);
-  const resObj = { message: '', data: '', error: '' };
-  if (output.error) {
-    resObj.error = output.error.details[0].message;
-    res.status(400).json(resObj);
-  } else {
-    req.data = loginData;
-    next();
+  try {
+    const loginData = await req.body;
+    const output = loginV.validate(loginData);
+    if (output.error) {
+      throw new errorHandler.badRequest(output.error.details[0].message);
+    } else {
+      req.data = loginData;
+      next();
+    }
+  } catch (err) {
+    next(err);
   }
 }
 

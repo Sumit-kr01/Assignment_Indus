@@ -1,0 +1,1000 @@
+{
+    "swagger": "2.0",
+    "info": {
+    "version": "1.0.0",
+    "title": "Book Management Project",
+   
+    "description": "My User Project Application API",
+    "license": {
+    "name": "",
+    "url": ""
+    }
+    },
+    "host": "localhost:4000",
+    "securityDefinitions": {
+        "JWT":{
+            "type":"apiKey",
+            "in":"header",
+            "name":"Authorization"
+        }
+      },
+    
+    "basePath": "/",
+    "tags": [
+    {
+    "name": "Users",
+    "description": "API for users in the system"
+    },
+    {
+        "name": "Books",
+        "description": "API for books in the system"
+        }
+    ],
+    "schemes": [
+    "http"
+    ],
+    "consumes": [
+    "application/json"
+    ],
+    "produces": [
+    "application/json"
+    ],
+    "paths": {
+        "/users/register": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "description": "Create a new User",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "User details we want to create",
+                        "schema": {
+                            "$ref": "#/definitions/userSchema"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New user created",
+                        "schema": {
+                            "$ref": "#/definitions/userRegisterResponse"
+                        }
+                        },
+                    "409": {
+                        "description": "Username or Email already exists."
+                        
+                    },
+                    "500":  {
+                        "description": "Internal Server error"
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "description": "User Login",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "User details for login",
+                        "schema": {
+                            "required": [
+                                "userName",
+                                "password"
+                            ],
+                            "properties": {
+                                "userName": {
+                                    "type":"string"
+                                },
+                                "password":{
+                                    "type":"string",
+                                    "format":"password"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"login Successful"},
+                                "data":{"type":"object","properties":{"token": {"type":"string"}}},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "401": {
+                        "description": "Incorrect Password."
+                        
+                    },
+                    "404": {
+                        "description": "Invalid user or user not found."
+                        
+                    },
+                    "500":  {
+                        "description": "Internal Server error."
+                        
+                    }
+                }
+            }
+        },
+        "/users/{userId}/amount": {
+            
+            "parameters": [
+                {
+                    "name": "userId",
+                    "in": "path",
+                    "required": true,
+                    "description": "User id for which amount is required",
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "description":"Get the amount spent by user in last 100 days.",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "UserId",
+                        "schema": {
+                            "required": [
+                                "userId"
+                            ],
+                            "properties": {
+                                "userId": {
+                                    "type":"string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                          
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Amount spent by user in last 100 days = xyz"},
+                                "data":{"default": "xyz"},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "401": {
+                        "description": "Invalid Token Supplied"
+                        
+                    },
+                    "500":  {
+                        "description": "Internal Server error."
+                        
+                    }
+                }
+            }
+        },
+        "/users/{userId}/books": {
+            
+            "parameters": [
+                {
+                    "name": "userId",
+                    "in": "path",
+                    "required": true,
+                    "description": "User id for which to get rented books",
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "description":"Get the books rented by a user.",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "UserId",
+                        "schema": {
+                            "required": [
+                                "userId"
+                            ],
+                            "properties": {
+                                "userId": {
+                                    "type":"string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                          
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Following books are rented to user."},
+                                "data":{"type":"array","default":"An array of books rented."},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "401": {
+                        "description": "Invalid Token Supplied"
+                        
+                    },
+                    "500":  {
+                        "description": "Internal Server error."
+                        
+                    }
+                }
+            }
+        },
+        "/users/{userId}/makeAdmin": {
+            
+            "parameters": [
+                {
+                    "name": "userId",
+                    "in": "path",
+                    "required": true,
+                    "description": "User id for user to be made an admin.",
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "description":"Change a user status to admin.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                          
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"The user is now admin."},
+                                "data":{"type":"string","default":"User ID"},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "401": {
+                        "description": "Invalid Token Supplied"
+                        
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"The user is already an admin."},
+                                "data":{"default":"null"},
+                                "error":{"default":"null"}
+                            }
+                        }
+                    },
+                    "500":  {
+                        "description": "Internal Server error."
+                        
+                    }
+                }
+            }
+        },
+        "/users/{userId}": {
+            
+            "parameters": [
+                {
+                    "name": "userId",
+                    "in": "path",
+                    "required": true,
+                    "description": "User id for user to be deactivated.",
+                    "type": "string"
+                }
+            ],
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "description":"Deactivate a user.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                          
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"User deactivated"},
+                                "data":{"type":"object","default":"Userdata"},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "401": {
+                        "description": "Invalid Token Supplied"
+                        
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"The user is already inactive"},
+                                "data":{"default":"null"},
+                                "error":{"default":"null"}
+                            }
+                        }
+                    },
+                    "500":  {
+                        "description": "Internal Server error."
+                        
+                    }
+                }
+            }
+        },
+        "/books/new": {
+            "post": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Add a new book.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "book",
+                        "in": "body",
+                        "description": "Book details we want to add.",
+                        "schema": {
+                            "required": [
+                                "title",
+                                "copies",
+                                "author",
+                                "price",
+                                "genre",
+                                "minAgeCategory"
+                            ],
+                            "properties": {
+                                "title": {
+                                    "type": "string"
+                                },
+                                "copies": {
+                                    "type": "integer"
+                                },
+                                "author": {
+                                    "type":"object", "properties":{"fName":{"type": "string"}, "lName":{"type":"string"}}
+                                },
+                                "price": {
+                                    "type": "integer"
+                                },
+                                "genre": {
+                                    "type": "string"                },
+                                "minAgeCategory": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Book added.",
+                        "schema": {
+                            "properties":{
+                                "meuser to be deactivated.ssage":{"default":"Book added successfully."},
+                                "data":{"default":"Null"},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "409": {
+                        "description": "Book already exists."
+                        
+                    },
+                    "400":  {
+                        "description": "Validation error"
+                    },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    }
+                }
+            }
+        },
+        "/books/{bookId}/issue": {
+            "parameters": [
+                {
+                    "name": "bookId",
+                    "in": "path",
+                    "required": true,
+                    "description": "Book ID of the book to be issued.",
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Issue a book.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Books issued successfully.",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Book issued successfully."},
+                                "data":{"default":"Null"},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    }
+                }
+            }
+        },
+        "/books/genre/{genre}": {
+            "parameters": [
+                {
+                    "name": "genre",
+                    "in": "path",
+                    "required": true,
+                    "description": "Genre",
+                    "type": "string"
+                },
+                {
+                    "name": "offset",
+                    "in": "query",
+                    "required": true,
+                    "description":"The number of items to skip.",
+                    "type":"integer"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Display books for given genre",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Number of books with genre xyz is num."},
+                                "data":{"default":"An array of books."},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    },
+                    "404":  {
+                        "description": "No books found with given genre."
+                    }
+                }
+            }
+        },
+        "/books/all": {
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Count total number of books in store.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Total number of books in store is num"},
+                                "data":{"default":"num"},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    }
+                }
+            }
+        },
+        "/books/rented": {
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Count total number of rented books in store.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Total number of rented books in store is num"},
+                                "data":{"default":"num"},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    }
+                }
+            }
+        },
+        "/books/{bookId}/days": {
+            "parameters": [
+                {
+                    "name": "bookId",
+                    "in": "path",
+                    "required": true,
+                    "description": "Book Id",
+                    "type": "string"
+                }
+                
+            ],
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Count total number of days after which a book can be rented.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"This book can be rented after num days"},
+                                "data":{"default":"null"},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    },
+                    "400":{
+                        "description": "No books with given book ID."
+                    }
+                }
+            }
+        },
+        "/books/author": {
+            "parameters": [
+                {
+                    "name": "author",
+                    "in": "query",
+                    "required": true,
+                    "description": "Author",
+                    "type": "string"
+                },
+                {
+                    "name": "offset",
+                    "in": "query",
+                    "required": true,
+                    "description": "Number of documents to skip from top.",
+                    "type": "integer"
+                }
+                
+            ],
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Get all books by given author.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Books found for given author name."},
+                                "data":{"default":"An array of books by given author."},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    }
+                }
+            }
+        },
+        "/books/authorName": {
+            "parameters": [
+                {
+                    "name": "pattern",
+                    "in": "query",
+                    "required": true,
+                    "description": "Author name pattern.",
+                    "type": "string"
+                },
+                {
+                    "name": "offset",
+                    "in": "query",
+                    "required": true,
+                    "description": "Number of documents to skip from top.",
+                    "type": "integer"
+                }
+                
+            ],
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Get all books by given author.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Books found are:"},
+                                "data":{"default":"An array of books by given author name pattern."},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    }
+                }
+            }
+        },
+        "/books/trendingAuthors": {
+            
+            "get": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Get top 10 trending authors.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Top trending authors in order are:"},
+                                "data":{"default":"An array of authors name."},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    }
+                }
+            }
+        },
+        "/books/{bookId}": {
+            "parameters": [
+                {
+                    "name": "bookId",
+                    "in": "path",
+                    "required": true,
+                    "description": "Book Id",
+                    "type": "string"
+                }
+                
+            ],
+            "patch": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Update the book with given bookId.",
+                "parameters": [
+                    {
+                        "name": "Book update details",
+                        "in": "body",
+                        "description": "Book details required to be updated.",
+                        "schema": {
+                            "$ref": "#/definitions/bookUpdateSchema"
+                        }
+                    }
+                ],
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Book updated successfully."},
+                                "data":{"default":"Book Details."},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    },
+                    "400":{
+                        "description": "No books with given book ID."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Books"
+                ],
+                "description": "Discard a book with given book ID.",
+                "security":[
+                    {
+                        "JWT": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request Successful",
+                        "schema": {
+                            "properties":{
+                                "message":{"default":"Book discarded successfully."},
+                                "data":{"default":"Book Details."},
+                                "error":{"default":"null"}
+                            }
+                        }
+                        },
+                    "500":  {
+                        "description": "Internal Server error"
+                    },
+                    "401":{
+                        "description": "Authentication failed"
+                    },
+                    "400":{
+                        "description": "No books with given book ID."
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "userSchema": {
+            "required": [
+                "firstName",
+                "lastName",
+                "userName",
+                "password",
+                "email",
+                "dob"
+            ],
+            "properties": {
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "format": "password",
+                    "pattern": "^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,16}$"
+                },
+                "email": {
+                    "type": "string",
+                    "format": "email"
+                },
+                "dob": {
+                    "type": "string",
+                    "format": "date"
+                }
+            }
+        },
+        "userLoginSchema": {
+            "required": [
+                "userName",
+                "password"
+            ],
+            "properties": {
+                "userName": {
+                    "type":"string"
+                },
+                "password":{
+                    "type":"string",
+                    "format":"password"
+                }
+            }
+        },
+        "userRegisterResponse": {
+            
+            "properties": {
+                "message": {
+                    "default": "Registration Successful"
+                },
+                "data": {
+                    "default": "null"
+                },
+                "error": {
+                    "default": "null"
+                }
+            }
+        },
+       
+        "bookSchema": {
+            "required": [
+                "title",
+                "copies",
+                "author",
+                "price",
+                "genre",
+                "minAgeCategory"
+            ],
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "copies": {
+                    "type": "integer"
+                },
+                "author": {
+                    "fName": {"type": "string"}, "lName":{"type":"string"}
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "genre": {
+                    "type": "string"                },
+                "minAgeCategory": {
+                    "type": "integer"
+                }
+            }
+        },
+        "bookUpdateSchema": {
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "copies": {
+                    "type": "integer"
+                },
+                "author": {
+                    "fName": {"type": "string"}, "lName":{"type":"string"}
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "genre": {
+                    "type": "string"                },
+                "minAgeCategory": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

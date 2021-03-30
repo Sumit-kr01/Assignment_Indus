@@ -26,7 +26,6 @@ const { tokenSecret } = process.env;
 async function signup(data) {
   const existing = await userQuery.userFindOneSignup(data.userName, data.email);
   if (existing) {
-    console.log('hello');
     throw new errorHandler.existingUser('Username or email already exists.');
   } else {
     const newuser = new User({

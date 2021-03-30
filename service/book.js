@@ -22,7 +22,6 @@ const ResponseClass = require('../utils/responseHandlerClass');
  */
 async function bookAdd(data) {
   let response;
-  console.log(data);
   const book = await bookQuery.findBookByTitle(data.title);
   if (book.length != 0) {
     throw new errorHandler.existingUser('Book already exists');
@@ -45,7 +44,7 @@ async function findByGenre(genre, offset) {
   if (books.length == 0) {
     throw new errorHandler.notFound('No books with given genre');
   } else {
-    result = new ResponseClass(`Number of books with genre ${genre} is ${books.length}.`, null);
+    result = new ResponseClass(`Number of books with genre ${genre} is ${books.length}.`, books);
   }
   return result;
 }
@@ -76,17 +75,17 @@ async function findByAuthor(query) {
   // If found in cache return data from here
   if (cacheData.length != 0) {
     parsedCacheData = JSON.parse(cacheData);
-    await redisQuery.addToSortedSet(author);
+    redisQuery.addToSortedSet(author);
     result = new ResponseClass('Books found for given Author Name:', parsedCacheData);
   }
   // Else make a db query
   else if (cacheData.length == 0) {
     const docs = await bookQuery.findByAuthor({ 'author.fName': author.split(' ')[0], 'author.lName': author.split(' ')[1] }, offset);
     if (docs.length == 0) {
-      throw new errorHandler.notFound('No books with given author name');
+      result = new ResponseClass('No books found for given Author Name:', null);
     } else {
       // Increase author score by 1
-      await redisQuery.addToSortedSet(author);
+      redisQuery.addToSortedSet(author);
       result = new ResponseClass('Books found for given Author Name:', docs);
     }
     // Add author's Book to cache if author is in top 10
@@ -126,7 +125,7 @@ async function findByPattern(query) {
   const books = await bookQuery.findByAuthorNamePattern(pattern, offset);
   if (books.length == 0) {
     console.log('error');
-    throw new errorHandler.notFound('No books with given author name');
+    result = new ResponseClass('No books found for given pattern', books);
   } else {
     console.log('OK');
     result = new ResponseClass('Books found are:', books);
@@ -168,7 +167,13 @@ async function discard(bookId) {
   return result;
 }
 
+// async function findByString(string) {
+//   const result = await bookQuery.search(string);
+//   console.log(result);
+//   return result;
+// }
+
 module.exports = {
   // eslint-disable-next-line max-len
-  bookAdd, findByGenre, countAllBooks, findByAuthor, findByPattern, update, discard, trendingAuthors,
+  bookAdd, findByGenre, countAllBooks, findByAuthor, findByPattern, update, discard, trendingAuthors, findByString,
 };
