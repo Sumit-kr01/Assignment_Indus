@@ -1,0 +1,27 @@
+[
+    {
+        "database": "libraryBulk",
+        "collection": "books",            
+        "count": 1000000,                  
+        "content": {                 
+            "title": { "type": "string", "unique": true, "minLength": 6, "maxLength": 6 },
+            "author": {"type": "object", "objectContent": {"firstName": {"type":"faker", "method":"FirstName"}, "lName": {"type":"faker", "method":"LastName"}}},
+            "copies": {"type": "int", "minInt":1, "maxInt":100},
+            "price": {"type": "int", "minInt":150, "maxInt":2000},
+            "genre": {"type":"fromArray", 
+                "in": ["Novel", "Fiction", "Educational", "Biography"],
+            "randomOrder": true},
+            "minAgeCategory": {"type": "int", "minInt":8, "maxInt":100},
+            "isDiscarded": {"type": "boolean"}
+            
+
+        },
+    
+    "indexes": [
+        {
+           "name": "title",
+           "key": {"title":1, "genre":1}
+        }
+    ]
+    }  
+]
